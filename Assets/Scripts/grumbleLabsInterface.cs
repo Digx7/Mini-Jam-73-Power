@@ -8,10 +8,18 @@ public class grumbleLabsInterface : MonoBehaviour
     [SerializeField] private int songNumber, layerNumber;
 
     public void CallPlayNewSong(){
-      grumbleAMP.PlaySong(songNumber,layerNumber);
+      if(grumbleAMP.PlaySong(songNumber,layerNumber)) StartCoroutine(CallNewSong());  
     }
 
     public void CallCrossFadeToNewLayer(){
       grumbleAMP.CrossFadeToNewLayer(layerNumber);
+    }
+
+    IEnumerator CallNewSong(){
+      yield return null;
+      while(grumbleAMP.PlaySong(songNumber,layerNumber)){
+        yield return null;
+      }
+      yield return null;
     }
 }
