@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3ef1333cc6a816340b9ac27ec7ba1a1d, type: 2}
+  - {fileID: 2100000, guid: a9fff35771dc6c54abb36105d7907bad, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -113,6 +113,7 @@ MonoBehaviour:
   StartOnAwake: 1
   moveSpeed: 50
   rb: {fileID: 2265900635962009275}
+  targetMode: 0
   movementMode: 0
   momentumMode: 0
   directionToMove: {x: 1, y: 0, z: 0}

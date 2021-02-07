@@ -9,7 +9,7 @@ public class FSM : MonoBehaviour {
     [Tooltip("This is the number of the current state in the list of all the states.  The list starts at 0 and works its way up.  You can set this before hand to determine the starting state")]
     [SerializeField] private int indexOfCurrentState = 0;
 
-    [Tooltip("This is the currently active state.  You don't need to adjust this in the inspector but can use it for debugging if the FSM seems to be malfuntioning.")]
+    [Tooltip("This is the currently active state.  You don't need to adjust this in the inspector but can use it for //Debugging if the FSM seems to be malfuntioning.")]
     [SerializeField] private State currentState;
 
     [Space]
@@ -28,12 +28,12 @@ public class FSM : MonoBehaviour {
 
     public string findNewStateNameUsingTriggerName(string triggerName) {
         if (doesTriggerExist(triggerName)) {
-            Debug.Log("There is a trigger with the name '" + triggerName + "'");
+            //Debug.Log("There is a trigger with the name '" + triggerName + "'");
             if (doesTransitionWithTriggerNameExistOnCurrentState(triggerName)) {
-                Debug.Log("There is a transtion with the '" + triggerName + "' trigger on the current state '" + currentState.name + "'");
+                //Debug.Log("There is a transtion with the '" + triggerName + "' trigger on the current state '" + currentState.name + "'");
                 Transition _transiton = findTransitionWithTriggerNameOnCurrentState(triggerName);
-                Debug.Log("This transition is called '" + _transiton.name + "'");
-                Debug.Log("The next state that should be transitioned to is '" + _transiton.newStateName + "'");
+                //Debug.Log("This transition is called '" + _transiton.name + "'");
+                //Debug.Log("The next state that should be transitioned to is '" + _transiton.newStateName + "'");
 
                 return _transiton.newStateName;
             } else return null;
@@ -42,10 +42,10 @@ public class FSM : MonoBehaviour {
 
     public void transitionToNewState(string newStateName) {
         if (doesStateExist(newStateName)) {
-            Debug.Log("The state named '" + newStateName + "' does exist");
+            //Debug.Log("The state named '" + newStateName + "' does exist");
             callOnEndStateEventOnCurrentState();
             updateCurrentStateWithName(newStateName);
-            Debug.Log("The current state should have been updated");
+            //Debug.Log("The current state should have been updated");
             callOnStartStateEventOnCurrentState();
         }
     }

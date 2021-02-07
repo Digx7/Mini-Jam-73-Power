@@ -1,5 +1,5 @@
 // Digx7
-// Will move an object using a Rigidbody2D
+// Will move an object using a Rigidbody
 using UnityEngine;
 
 public class ObjectMove : MonoBehaviour {
@@ -14,10 +14,13 @@ public class ObjectMove : MonoBehaviour {
 
     [SerializeField] private Rigidbody rb;
 
-    public enum MovementMode { TowardDirection, TowardObject }
+    public enum TargetMode {Direction, Object}
+    public enum MovementMode {Toward, Away}
 
-    [Tooltip("TowardDirection: Move in one preset direction\nTowardObject: Move toward a given GameObject")]
-    [SerializeField] private MovementMode movementMode = MovementMode.TowardDirection;
+    [Tooltip("Direction: Move in one preset direction\nObject: Move toward/away a given GameObject")]
+    [SerializeField] private TargetMode targetMode = TargetMode.Direction;
+    [Tooltip("Toward: Move closer to the target\nObject: Move away from the target")]
+    [SerializeField] private MovementMode movementMode = MovementMode.Toward;
 
     public enum MomentumMode { Velocity, AddForce }
 
@@ -25,13 +28,13 @@ public class ObjectMove : MonoBehaviour {
     [SerializeField] private MomentumMode momentumMode = MomentumMode.Velocity;
 
     [Space]
-    [Header("Toward Direction Mode")]
+    [Header("Direction Mode")]
     [Tooltip("Only works in TowardDirection Movement Mode")]
     [SerializeField] private Vector3 directionToMove;
 
     [SerializeField] private bool useLocalSpace = false;
 
-    [Header("Toward Object Mode")]
+    [Header("Object Mode")]
     [Tooltip("Only works in TowardObject Movement Mode")]
     [SerializeField] private GameObject objectToMoveTowards;
 
@@ -40,7 +43,6 @@ public class ObjectMove : MonoBehaviour {
 
     private Vector3 forwardVel;
     private Vector3 horizontalVel;
-    private Vector3 depthVel;
 
     public void Awake() {
         if (lookForGameObjectOnAwake) findGameObjectWithTag();
@@ -48,30 +50,43 @@ public class ObjectMove : MonoBehaviour {
     }
 
     public void FixedUpdate() {
-        if (isOn && movementMode == MovementMode.TowardDirection) {
-            if (!useLocalSpace) {
-              if(momentumMode == MomentumMode.Velocity) rb.velocity = directionToMove * moveSpeed;
-              else rb.AddForce(directionToMove * moveSpeed,  ForceMode.Impulse);
-            }
-            else {
-                forwardVel = transform.right * moveSpeed * directionToMove.x;
-                horizontalVel = transform.up * moveSpeed * directionToMove.y;
-                depthVel.z = transform.position.z * moveSpeed * directionToMove.z;
+        moveObject();
+    }
 
-                if(momentumMode == MomentumMode.Velocity) rb.velocity = forwardVel + horizontalVel + depthVel;
-                else rb.AddForce(forwardVel + horizontalVel + depthVel,  ForceMode.Impulse);
-            }
-        } else if (isOn && movementMode == MovementMode.TowardObject) {
-            directionToMove = objectToMoveTowards.transform.position - gameObject.transform.position;
-            Vector3.Normalize(directionToMove);
+    public void moveObject() {
+      //Debug.Log("moveObject is called");
+      if (isOn && targetMode == TargetMode.Direction) {
+        //Debug.Log("Calling move in a direction");
+          if (!useLocalSpace) {
+            if(momentumMode == MomentumMode.Velocity) rb.velocity = applyMovementMode(directionToMove) * moveSpeed;
+            else rb.AddForce(applyMovementMode(directionToMove) * moveSpeed,  ForceMode.Impulse);
+          }
+          else {
+              forwardVel = transform.right * moveSpeed * directionToMove.x;
+              horizontalVel = transform.up * moveSpeed * directionToMove.y;
 
-            if(momentumMode == MomentumMode.Velocity) rb.velocity = directionToMove * moveSpeed;
-            else rb.AddForce(directionToMove * moveSpeed,  ForceMode.Impulse);
-        }
+              if(momentumMode == MomentumMode.Velocity) rb.velocity = applyMovementMode(forwardVel + horizontalVel);
+              else rb.AddForce(applyMovementMode(forwardVel + horizontalVel),  ForceMode.Impulse);
+          }
+      } else if (isOn && targetMode == TargetMode.Object) {
+        //Debug.Log("Calling move based on a object");
+          directionToMove.x = objectToMoveTowards.transform.position.x - gameObject.transform.position.x;
+          directionToMove.y = objectToMoveTowards.transform.position.y - gameObject.transform.position.y;
+          directionToMove.z = objectToMoveTowards.transform.position.z - gameObject.transform.position.z;
+          Vector3.Normalize(directionToMove);
+
+          if(momentumMode == MomentumMode.Velocity) rb.velocity = applyMovementMode(directionToMove) * moveSpeed;
+          else rb.AddForce(applyMovementMode(directionToMove) * moveSpeed,  ForceMode.Impulse);
+      }
     }
 
     public void toggleIsOn() {
         isOn = !isOn;
+    }
+
+    private Vector3 applyMovementMode(Vector3 input){
+      if(movementMode == MovementMode.Toward) return input;
+      else return -input;
     }
 
     // --- Get and Set Funtions ---------------------------
@@ -105,10 +120,6 @@ public class ObjectMove : MonoBehaviour {
 
     public void setDirectionToMoveTo(Vector2 direction) {
         directionToMove = new Vector3(direction.x, direction.y, 0);
-    }
-
-    public void setDirectionToMoveTo3D(Vector2 direction) {
-        directionToMove = new Vector3(direction.x, 0, direction.y);
     }
 
     public void setObjectToMoveTowards(GameObject target) {
